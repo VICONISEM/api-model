@@ -8,7 +8,7 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/health",
       "dest": "index.py"
     }
   ]
