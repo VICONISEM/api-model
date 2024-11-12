@@ -7,8 +7,8 @@ from sklearn.preprocessing import StandardScaler
 app = Flask(__name__)
 
 # Load the pre-trained model and scaler
-model = joblib.load('health_score_model.pkl')
-scaler = joblib.load('scaler.pkl')  # You need to save and load the scaler separately
+model = joblib.load('api\health_score_model.pkl')
+scaler = joblib.load('api\scaler.pkl')  # You need to save and load the scaler separately
 
 # Define the prediction endpoint
 @app.route('/predict', methods=['POST'])
