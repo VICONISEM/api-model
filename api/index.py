@@ -110,9 +110,7 @@ class NativeRandomForestRegressor:
         return np.mean(predictions, axis=1)
 
 # Initialize Flask App
-app = Flask(__name__)
-api = Api(app)
-CORS(app)
+
 
 # Ensure classes are registered for loading
 globals()['NativeRandomForestRegressor'] = NativeRandomForestRegressor
@@ -120,69 +118,92 @@ globals()['NativeDecisionTree'] = NativeDecisionTree
 globals()['NativeStandardScaler'] = NativeStandardScaler
 
 # Load Model and Scaler
+app = Flask(__name__)
+api = Api(app)
+CORS(app)
+
+# Define paths for model and scaler
 model_path = 'api/native_health_score_model.pkl'
 scaler_path = 'api/native_scaler.pkl'
 
-model=None
-scaler=None
+# Initialize variables for model and scaler
+model = None
+scaler = None
 
-try:
-    with open(model_path, 'rb') as model_file:
-        model = pickle.load(model_file)
+# Load the model
+if os.path.exists(model_path):
+    try:
+        model = joblib.load(model_path)
+        print(f"Model loaded successfully from {model_path}")
+    except Exception as e:
+        print(f"Error loading model: {e}")
+else:
+    print(f"Model file not found at {model_path}")
 
-    with open(scaler_path, 'rb') as scaler_file:
-        scaler = pickle.load(scaler_file)
+# Load the scaler
+if os.path.exists(scaler_path):
+    try:
+        scaler = joblib.load(scaler_path)
+        print(f"Scaler loaded successfully from {scaler_path}")
+    except Exception as e:
+        print(f"Error loading scaler: {e}")
+else:
+    print(f"Scaler file not found at {scaler_path}")
 
-    print("Model and scaler loaded successfully.")
-except Exception as e:
-    print(f"Error loading model or scaler: {e}")
-    model, scaler = None, None
-
-# Health Score Prediction API
+# Define HealthScore API Resource
 class HealthScore(Resource):
     def post(self):
         try:
+            # Validate that model and scaler are loaded
+            if model is None:
+                return {"error": "Model is not loaded"}, 500
+            if scaler is None:
+                return {"error": "Scaler is not loaded"}, 500
+
             # Get JSON input
             data = request.get_json(force=True)
 
             # Validate input data
-            if 'sugarPercentage' not in data or 'bloodPressure' not in data or 'averageTemprature' not in data:
-                return {"error": "Missing required input data"}, 400
+            if not all(k in data for k in ('sugarPercentage', 'bloodPressure', 'averageTemprature')):
+                return {"error": "Missing required input data: sugarPercentage, bloodPressure, averageTemprature"}, 400
 
-            # Extract input features
+            # Extract input features and convert to numpy array
             input_features = np.array([[data['sugarPercentage'], 
                                         data['bloodPressure'], 
                                         data['averageTemprature']]])
             
-            # Scale input features using the scaler
-            input_scaled = scaler.transform(input_features)
+            # Scale input features using the loaded scaler
+            try:
+                input_scaled = scaler.transform(input_features)
+            except Exception as e:
+                return {"error": f"Failed to scale input features: {e}"}, 500
 
-            # Predict using the model
-            prediction = model.predict(input_scaled)
+            # Predict using the loaded model
+            try:
+                prediction = model.predict(input_scaled)
+            except Exception as e:
+                return {"error": f"Failed to make prediction: {e}"}, 500
 
-            # Return the prediction in a dictionary (JSON serializable format)
+            # Return the prediction result
             response = {
                 "predicted_health_condition_score": float(prediction[0])
             }
             return response, 200
 
         except Exception as e:
-            # Return the error message in JSON format
-            error_response = {
-                "error": str(e)
-            }
-            return error_response, 500
+            # Handle any unexpected errors
+            return {"error": str(e)}, 500
 
-
-# Health Check API
+# Define Health Resource for API status check
 class Health(Resource):
     def get(self):
         return jsonify({"status": "API is working!"})
 
-# Add API Resources
+# Register API resources
 api.add_resource(HealthScore, '/predict')
 api.add_resource(Health, '/health')
 
-# Run the Application
+# Run the application
 if __name__ == '__main__':
     app.run(debug=True)
+
