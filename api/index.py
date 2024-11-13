@@ -156,7 +156,7 @@ class HealthScore(Resource):
             prediction = model.predict(input_scaled)
 
             # Ensure the output is JSON serializable
-            return jsonify({"predicted_health_condition_score": float(prediction[0])})
+            return{"predicted_health_condition_score": float(prediction[0])}
 
         except Exception as e:
             # Return an error message as JSON
