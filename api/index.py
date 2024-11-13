@@ -123,6 +123,9 @@ globals()['NativeStandardScaler'] = NativeStandardScaler
 model_path = 'api/native_health_score_model.pkl'
 scaler_path = 'api/native_scaler.pkl'
 
+model=None
+scaler=None
+
 try:
     with open(model_path, 'rb') as model_file:
         model = pickle.load(model_file)
