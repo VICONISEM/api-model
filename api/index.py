@@ -130,24 +130,13 @@ scaler_path = 'api/native_scaler.pkl'
 
 
 # Load the model
-if os.path.exists(model_path):
-    try:
-        model = joblib.load(model_path)
-        print(f"Model loaded successfully from {model_path}")
-    except Exception as e:
-        print(f"Error loading model: {e}")
-else:
-    print(f"Model file not found at {model_path}")
 
+model = joblib.load(model_path)
+        
+    
 # Load the scaler
-if os.path.exists(scaler_path):
-    try:
-        scaler = joblib.load(scaler_path)
-        print(f"Scaler loaded successfully from {scaler_path}")
-    except Exception as e:
-        print(f"Error loading scaler: {e}")
-else:
-    print(f"Scaler file not found at {scaler_path}")
+scaler = joblib.load(scaler_path)
+       
 
 # Define HealthScore API Resource
 class HealthScore(Resource):
