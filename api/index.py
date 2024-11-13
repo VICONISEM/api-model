@@ -10,8 +10,8 @@ api = Api(app)
 CORS(app)
 
 # Load your model and scaler
-model = joblib.load('api/health_score_model.pkl')
-scaler = joblib.load('api/scaler.pkl')
+model = joblib.load('api\health_score_model.pkl')
+scaler = joblib.load('api\scaler.pkl')
 
 # Define a HealthScore Resource
 class HealthScore(Resource):
@@ -34,8 +34,8 @@ class Health(Resource):
     def get(self):
         return jsonify({"status": "API is working!"})
 
-# Register the resources with routes
+
 api.add_resource(Health, '/health')
 api.add_resource(HealthScore, '/predict')
 
-# Vercel does not require app.run()
+
