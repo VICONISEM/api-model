@@ -9,10 +9,10 @@ api = Api(app)
 CORS(app)
 
 # Load Native Model and Scaler using Pickle
-with open('/native_health_score_model.pkl', 'rb') as model_file:
+with open('native_health_score_model.pkl', 'rb') as model_file:
     model = pickle.load(model_file)
 
-with open('/native_scaler.pkl', 'rb') as scaler_file:
+with open('native_scaler.pkl', 'rb') as scaler_file:
     scaler = pickle.load(scaler_file)
 
 # Define a HealthScore Resource
