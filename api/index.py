@@ -3,10 +3,9 @@ from flask_restful import Api, Resource
 from flask_cors import CORS
 import pickle
 import numpy as np
-import os
 import joblib
 
-# Define Native Standard Scaler
+# Native Standard Scaler
 class NativeStandardScaler:
     def __init__(self):
         self.mean_ = None
@@ -153,7 +152,7 @@ class HealthScore(Resource):
             input_scaled = scaler.transform(input_features)
             prediction = model.predict(input_scaled)
 
-            # Ensure the return data is a serializable type
+            # Ensure that you are only returning serializable data to jsonify
             return jsonify({"predicted_health_condition_score": float(prediction[0])})
 
         except Exception as e:
