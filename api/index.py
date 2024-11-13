@@ -148,13 +148,16 @@ class HealthScore(Resource):
             input_features = np.array([[data['sugarPercentage'], 
                                         data['bloodPressure'], 
                                         data['averageTemprature']]])
-            
+
             # Scale the input features
             input_scaled = scaler.transform(input_features)
             prediction = model.predict(input_scaled)
 
+            # Ensure the return data is a serializable type
             return jsonify({"predicted_health_condition_score": float(prediction[0])})
+
         except Exception as e:
+            # Return a valid JSON error message
             return jsonify({"error": str(e)}), 500
 
 # Health Check API
