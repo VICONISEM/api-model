@@ -5,6 +5,8 @@ import pickle
 import numpy as np
 import os
 import joblib
+
+# Define Native Standard Scaler
 class NativeStandardScaler:
     def __init__(self):
         self.mean_ = None
@@ -21,7 +23,7 @@ class NativeStandardScaler:
         self.fit(X)
         return self.transform(X)
 
-# Native Decision Tree for Regression (Simplified)
+# Native Decision Tree for Regression
 class NativeDecisionTree:
     def __init__(self, max_depth=None):
         self.max_depth = max_depth
@@ -85,7 +87,7 @@ class NativeDecisionTree:
             else:
                 return self.tree['right'].predict(X)
 
-# Native Random Forest Regressor Implementation
+# Native Random Forest Regressor
 class NativeRandomForestRegressor:
     def __init__(self, n_estimators=100, max_depth=None):
         self.n_estimators = n_estimators
@@ -107,53 +109,63 @@ class NativeRandomForestRegressor:
         predictions = predictions.reshape(len(X), -1)
         return np.mean(predictions, axis=1)
 
+# Initialize Flask App
 app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
-model = joblib.load('api/native_health_score_model.pkl')
-scaler = joblib.load('api/native_scaler.pkl')
-# Load Native Model and Scaler using Pickle
+# Ensure classes are registered for loading
+globals()['NativeRandomForestRegressor'] = NativeRandomForestRegressor
+globals()['NativeDecisionTree'] = NativeDecisionTree
+globals()['NativeStandardScaler'] = NativeStandardScaler
 
+# Load Model and Scaler
+model_path = 'api/native_health_score_model.pkl'
+scaler_path = 'api/native_scaler.pkl'
 
+try:
+    with open(model_path, 'rb') as model_file:
+        model = pickle.load(model_file)
 
+    with open(scaler_path, 'rb') as scaler_file:
+        scaler = pickle.load(scaler_file)
+
+    print("Model and scaler loaded successfully.")
+except Exception as e:
+    print(f"Error loading model or scaler: {e}")
+    model, scaler = None, None
+
+# Health Score Prediction API
 class HealthScore(Resource):
     def post(self):
-        # Get JSON input
         data = request.get_json(force=True)
 
-        # Check for required input data
+        # Validate input data
         if 'sugarPercentage' not in data or 'bloodPressure' not in data or 'averageTemprature' not in data:
             return jsonify({"error": "Missing required input data"}), 400
 
         try:
-            # Extract input features
             input_features = np.array([[data['sugarPercentage'], 
                                         data['bloodPressure'], 
                                         data['averageTemprature']]])
-
-            # Scale input features using the native scaler
+            
+            # Scale the input features
             input_scaled = scaler.transform(input_features)
-
-            # Predict using the native random forest model
             prediction = model.predict(input_scaled)
 
-            # Return the prediction
             return jsonify({"predicted_health_condition_score": float(prediction[0])})
-
         except Exception as e:
-            # Handle any errors
             return jsonify({"error": str(e)}), 500
 
-# Define a Health Resource for API status check
+# Health Check API
 class Health(Resource):
     def get(self):
         return jsonify({"status": "API is working!"})
 
-# Add API resources
+# Add API Resources
 api.add_resource(HealthScore, '/predict')
 api.add_resource(Health, '/health')
 
-# Run the application
+# Run the Application
 if __name__ == '__main__':
     app.run(debug=True)
