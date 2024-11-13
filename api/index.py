@@ -144,20 +144,24 @@ class HealthScore(Resource):
             return jsonify({"error": "Missing required input data"}), 400
 
         try:
+            # Prepare features
             input_features = np.array([[data['sugarPercentage'], 
                                         data['bloodPressure'], 
                                         data['averageTemprature']]])
 
-            # Scale the input features
+            # Scale input
             input_scaled = scaler.transform(input_features)
+
+            # Make prediction
             prediction = model.predict(input_scaled)
 
-            # Ensure that you are only returning serializable data to jsonify
+            # Ensure the output is JSON serializable
             return jsonify({"predicted_health_condition_score": float(prediction[0])})
 
         except Exception as e:
-            # Return a valid JSON error message
+            # Return an error message as JSON
             return jsonify({"error": str(e)}), 500
+
 
 # Health Check API
 class Health(Resource):
