@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request,make_response
 from flask_restful import Api, Resource
 from flask_cors import CORS
 import pickle
@@ -160,7 +160,7 @@ class HealthScore(Resource):
                 prediction = float(prediction[0])  # Take the first element if it's an array
 
             # Return the prediction as a JSON response
-            return jsonify({"predicted_health_condition_score": prediction})
+            return make_response(prediction,200)
 
         except Exception as e:
             # Log error and return an error message as JSON
