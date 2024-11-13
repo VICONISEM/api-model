@@ -10,10 +10,10 @@ api = Api(app)
 CORS(app)
 
 # Load your model and scaler
-model = joblib.load('api\health_score_model.pkl')
-scaler = joblib.load('api\scaler.pkl')
+model = joblib.load('api/health_score_model.pkl')  # Update the path if needed
+scaler = joblib.load('api/scaler.pkl')  # Update the path if needed
 
-# Define a HealthScore Resource
+# HealthScore Resource for prediction
 class HealthScore(Resource):
     def post(self):
         data = request.get_json(force=True)
@@ -29,13 +29,15 @@ class HealthScore(Resource):
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
-# Define a Health Resource for API status check
+# Health Resource for checking API status
 class Health(Resource):
     def get(self):
         return jsonify({"status": "API is working!"})
 
-
+# Register resources with routes
 api.add_resource(Health, '/health')
 api.add_resource(HealthScore, '/predict')
 
-
+# Run the application locally
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
