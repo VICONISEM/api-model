@@ -155,13 +155,17 @@ class HealthScore(Resource):
             # Make prediction
             prediction = model.predict(input_scaled)
 
-            # Ensure the output is JSON serializable
-            return jsonify({"predicted_health_condition_score":"vicooooo"} )
+            # Ensure the prediction is serializable (convert to float if needed)
+            if isinstance(prediction, (np.ndarray, np.generic)):
+                prediction = float(prediction[0])  # Take the first element if it's an array
+
+            # Return the prediction as a JSON response
+            return jsonify({"predicted_health_condition_score": prediction})
 
         except Exception as e:
-            # Return an error message as JSON
+            # Log error and return an error message as JSON
+            print(f"Error: {e}")
             return jsonify({"error": str(e)}), 500
-
 
 # Health Check API
 class Health(Resource):
