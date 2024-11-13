@@ -127,8 +127,7 @@ model_path = 'api/native_health_score_model.pkl'
 scaler_path = 'api/native_scaler.pkl'
 
 # Initialize variables for model and scaler
-model = None
-scaler = None
+
 
 # Load the model
 if os.path.exists(model_path):
