@@ -138,24 +138,38 @@ except Exception as e:
 # Health Score Prediction API
 class HealthScore(Resource):
     def post(self):
-        data = request.get_json(force=True)
-
-        # Validate input data
-        if 'sugarPercentage' not in data or 'bloodPressure' not in data or 'averageTemprature' not in data:
-            return jsonify({"error": "Missing required input data"}), 400
-
         try:
+            # Get JSON input
+            data = request.get_json(force=True)
+
+            # Validate input data
+            if 'sugarPercentage' not in data or 'bloodPressure' not in data or 'averageTemprature' not in data:
+                return {"error": "Missing required input data"}, 400
+
+            # Extract input features
             input_features = np.array([[data['sugarPercentage'], 
                                         data['bloodPressure'], 
                                         data['averageTemprature']]])
             
-            # Scale the input features
+            # Scale input features using the scaler
             input_scaled = scaler.transform(input_features)
+
+            # Predict using the model
             prediction = model.predict(input_scaled)
 
-            return jsonify({"predicted_health_condition_score": float(prediction[0])})
+            # Return the prediction in a dictionary (JSON serializable format)
+            response = {
+                "predicted_health_condition_score": float(prediction[0])
+            }
+            return response, 200
+
         except Exception as e:
-            return jsonify({"error": str(e)}), 500
+            # Return the error message in JSON format
+            error_response = {
+                "error": str(e)
+            }
+            return error_response, 500
+
 
 # Health Check API
 class Health(Resource):
