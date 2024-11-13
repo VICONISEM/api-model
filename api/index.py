@@ -137,7 +137,7 @@ except Exception as e:
 # Health Score Prediction API
 class HealthScore(Resource):
     def post(self):
-        data = request.get_json(force=True)
+        data = request.get_json()
 
         # Validate input data
         if 'sugarPercentage' not in data or 'bloodPressure' not in data or 'averageTemprature' not in data:
