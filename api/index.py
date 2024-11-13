@@ -10,8 +10,8 @@ api = Api(app)
 CORS(app)
 
 # Load your model and scaler
-model = joblib.load('health_score_model.pkl')
-scaler = joblib.load('scaler.pkl')
+# model = joblib.load('health_score_model.pkl')
+# scaler = joblib.load('scaler.pkl')
 
 # # Define a HealthScore Resource
 # class HealthScore(Resource):
