@@ -3,17 +3,23 @@ from flask_restful import Api, Resource
 from flask_cors import CORS
 import pickle
 import numpy as np
+import os
 
 app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
-# Load Native Model and Scaler using Pickle
-with open('native_health_score_model.pkl', 'rb') as model_file:
+model_path = os.path.join(os.path.dirname(__file__), 'native_health_score_model.pkl')
+scaler_path = os.path.join(os.path.dirname(__file__), 'native_scaler.pkl')
+
+# Load using Pickle
+with open(model_path, 'rb') as model_file:
     model = pickle.load(model_file)
 
-with open('native_scaler.pkl', 'rb') as scaler_file:
+with open(scaler_path, 'rb') as scaler_file:
     scaler = pickle.load(scaler_file)
+# Load Native Model and Scaler using Pickle
+
 
 # Define a HealthScore Resource
 class HealthScore(Resource):
