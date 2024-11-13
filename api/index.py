@@ -3,7 +3,7 @@ from flask_restful import Api, Resource
 from flask_cors import CORS
 import joblib
 import numpy as np
-# from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler
 
 app = Flask(__name__)
 api = Api(app)
