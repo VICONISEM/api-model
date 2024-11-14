@@ -132,7 +132,7 @@ try:
     print("Model and scaler loaded successfully.")
 except Exception as e:
     print(f"Error loading model or scaler: {e}")
-    model, scaler = None, None
+   # model, scaler = None, None
 
 # Health Score Prediction API
 class HealthScore(Resource):
@@ -160,7 +160,7 @@ class HealthScore(Resource):
                 prediction = float(prediction[0])  # Take the first element if it's an array
 
             # Return the prediction as a JSON response
-            return make_response(prediction,200)
+            return make_response(jsonify("vico"),200)
 
         except Exception as e:
             # Log error and return an error message as JSON
