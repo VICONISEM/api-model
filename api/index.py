@@ -1,9 +1,7 @@
-from flask import Flask, jsonify, request,make_response
+from flask import Flask, jsonify, request
 from flask_restful import Api, Resource
 from flask_cors import CORS
-import pickle
 import numpy as np
-import joblib
 
 # Native Standard Scaler
 class NativeStandardScaler:
@@ -113,26 +111,18 @@ app = Flask(__name__)
 api = Api(app)
 CORS(app)
 
-# Ensure classes are registered for loading
-globals()['NativeRandomForestRegressor'] = NativeRandomForestRegressor
-globals()['NativeDecisionTree'] = NativeDecisionTree
-globals()['NativeStandardScaler'] = NativeStandardScaler
+# Initialize Native Scaler and Model (using Native classes)
+scaler = NativeStandardScaler()
+model = NativeRandomForestRegressor(n_estimators=10, max_depth=5)
 
-# Load Model and Scaler
-model_path = 'api/native_health_score_model.pkl'
-scaler_path = 'api/native_scaler.pkl'
+# Train the scaler and model on some dummy data (just for the example)
+# In practice, you would want to load pre-trained models here or train them using a dataset
+dummy_X = np.array([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]])
+dummy_y = np.array([1.0, 2.0, 3.0])
 
-try:
-    with open(model_path, 'rb') as model_file:
-        model = pickle.load(model_file)
-
-    with open(scaler_path, 'rb') as scaler_file:
-        scaler = pickle.load(scaler_file)
-
-    print("Model and scaler loaded successfully.")
-except Exception as e:
-    print(f"Error loading model or scaler: {e}")
-   # model, scaler = None, None
+# Fit the scaler and model (if you are not loading them from a file)
+scaler.fit(dummy_X)
+model.fit(dummy_X, dummy_y)
 
 # Health Score Prediction API
 class HealthScore(Resource):
@@ -152,7 +142,7 @@ class HealthScore(Resource):
             # Scale input
             input_scaled = scaler.transform(input_features)
 
-            # Make prediction
+            # Make prediction using the native random forest model
             prediction = model.predict(input_scaled)
 
             # Ensure the prediction is serializable (convert to float if needed)
@@ -160,7 +150,7 @@ class HealthScore(Resource):
                 prediction = float(prediction[0])  # Take the first element if it's an array
 
             # Return the prediction as a JSON response
-            return make_response(jsonify("vico"),200)
+            return jsonify({"predicted_health_condition_score": "ddddddd"})
 
         except Exception as e:
             # Log error and return an error message as JSON
@@ -179,3 +169,4 @@ api.add_resource(Health, '/health')
 # Run the Application
 if __name__ == '__main__':
     app.run(debug=True)
+ 
